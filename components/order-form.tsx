@@ -40,6 +40,7 @@ export function OrderForm() {
   const [itemName, setItemName] = useState("")
   const [quantity, setQuantity] = useState<number | "">(1)
   const [unitPrice, setUnitPrice] = useState("")
+  const [displayPrice, setDisplayPrice] = useState("")
   const [participants, setParticipants] = useState<string[]>([])
   const [items, setItems] = useState<OrderItem[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -69,6 +70,36 @@ export function OrderForm() {
     setGroupData(currentGroup)
     setItems(currentGroup.items || [])
   }, [router])
+
+  const formatPriceDisplay = (value: string) => {
+    // Remove tudo exceto números
+    const numbers = value.replace(/\D/g, "")
+
+    if (!numbers) return ""
+
+    // Converte para número e divide por 100 para ter os centavos
+    const amount = Number.parseInt(numbers) / 100
+
+    // Formata como moeda brasileira
+    return amount.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  }
+
+  const handlePriceChange = (value: string) => {
+    const numbers = value.replace(/\D/g, "")
+
+    if (!numbers) {
+      setDisplayPrice("")
+      setUnitPrice("")
+      return
+    }
+
+    const amount = Number.parseInt(numbers) / 100
+    setDisplayPrice(formatPriceDisplay(value))
+    setUnitPrice(amount.toString())
+  }
 
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault()
@@ -104,6 +135,7 @@ export function OrderForm() {
     setItemName("")
     setQuantity(1)
     setUnitPrice("")
+    setDisplayPrice("")
     setParticipants([])
   }
 
@@ -200,16 +232,19 @@ export function OrderForm() {
               </div>
               <div className="space-y-2 flex-1">
                 <Label htmlFor="unit-price">Valor Unitário (R$)</Label>
-                <Input
-                  id="unit-price"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0,00"
-                  value={unitPrice}
-                  onChange={(e) => setUnitPrice(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                  <Input
+                    id="unit-price"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0,00"
+                    value={displayPrice}
+                    onChange={(e) => handlePriceChange(e.target.value)}
+                    className="pl-10"
+                    required
+                  />
+                </div>
               </div>
             </div>
 
