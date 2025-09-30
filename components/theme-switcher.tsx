@@ -7,7 +7,7 @@ import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 
 export function ThemeSwitcher() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
   // Avoid hydration mismatch
@@ -24,13 +24,22 @@ export function ThemeSwitcher() {
     )
   }
 
+  const handleToggle = () => {
+    // Se o tema é system, use o resolvedTheme para decidir
+    const currentTheme = theme === "system" ? resolvedTheme : theme
+    setTheme(currentTheme === "dark" ? "light" : "dark")
+  }
+
+  // Use resolvedTheme para mostrar o ícone correto
+  const isDark = (theme === "system" ? resolvedTheme : theme) === "dark"
+
   return (
     <Button
       variant="outline"
       size="icon"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={handleToggle}
     >
-      {theme === "dark" ? (
+      {isDark ? (
         <Sun className="h-[1.2rem] w-[1.2rem] transition-all" />
       ) : (
         <Moon className="h-[1.2rem] w-[1.2rem] transition-all" />
