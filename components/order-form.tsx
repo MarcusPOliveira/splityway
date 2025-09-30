@@ -183,9 +183,9 @@ export function OrderForm() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="quantity">Quantidade</Label>
+            <div className="flex gap-4">
+              <div className="space-y-2 w-24 flex-shrink-0">
+                <Label htmlFor="quantity">Qtd</Label>
                 <Input
                   id="quantity"
                   type="number"
@@ -198,7 +198,7 @@ export function OrderForm() {
                   required
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 flex-1">
                 <Label htmlFor="unit-price">Valor Unitário (R$)</Label>
                 <Input
                   id="unit-price"
