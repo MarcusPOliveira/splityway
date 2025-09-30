@@ -26,7 +26,13 @@ interface TipDialogProps {
   onConfirm: (tipValue: number, participants: string[]) => void
 }
 
-export function TipDialog({ open, onOpenChange, people, totalAmount, onConfirm }: TipDialogProps) {
+export function TipDialog({
+  open,
+  onOpenChange,
+  people,
+  totalAmount,
+  onConfirm,
+}: TipDialogProps) {
   const [tipType, setTipType] = useState<"percentage" | "value">("percentage")
   const [percentageValue, setPercentageValue] = useState("")
   const [displayPercentage, setDisplayPercentage] = useState("")
@@ -69,7 +75,11 @@ export function TipDialog({ open, onOpenChange, people, totalAmount, onConfirm }
   }
 
   const handleParticipantToggle = (person: string) => {
-    setParticipants((prev) => (prev.includes(person) ? prev.filter((p) => p !== person) : [...prev, person]))
+    setParticipants((prev) =>
+      prev.includes(person)
+        ? prev.filter((p) => p !== person)
+        : [...prev, person]
+    )
   }
 
   const handleSelectAll = () => {
@@ -116,10 +126,15 @@ export function TipDialog({ open, onOpenChange, people, totalAmount, onConfirm }
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Adicionar Gorjeta</DialogTitle>
-          <DialogDescription>Defina o valor ou porcentagem da gorjeta do garçom</DialogDescription>
+          <DialogDescription>
+            Defina o valor ou porcentagem da gorjeta do garçom
+          </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={tipType} onValueChange={(v) => setTipType(v as "percentage" | "value")}>
+        <Tabs
+          value={tipType}
+          onValueChange={(v) => setTipType(v as "percentage" | "value")}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="percentage">
               <Percent className="h-4 w-4 mr-2" />
@@ -143,11 +158,16 @@ export function TipDialog({ open, onOpenChange, people, totalAmount, onConfirm }
                   value={displayPercentage}
                   onChange={(e) => handlePercentageChange(e.target.value)}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  %
+                </span>
               </div>
               {percentageValue && (
                 <p className="text-sm text-muted-foreground">
-                  Valor da gorjeta: {formatCurrency(totalAmount * (Number.parseFloat(percentageValue) / 100))}
+                  Valor da gorjeta:{" "}
+                  {formatCurrency(
+                    totalAmount * (Number.parseFloat(percentageValue) / 100)
+                  )}
                 </p>
               )}
             </div>
@@ -157,7 +177,9 @@ export function TipDialog({ open, onOpenChange, people, totalAmount, onConfirm }
             <div className="space-y-2">
               <Label htmlFor="fixed-value">Valor Fixo</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  R$
+                </span>
                 <Input
                   id="fixed-value"
                   type="text"
@@ -175,8 +197,15 @@ export function TipDialog({ open, onOpenChange, people, totalAmount, onConfirm }
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <Label>Quem vai pagar?</Label>
-            <Button type="button" variant="outline" size="sm" onClick={handleSelectAll}>
-              {participants.length === people.length ? "Desmarcar Todos" : "Selecionar Todos"}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleSelectAll}
+            >
+              {participants.length === people.length
+                ? "Desmarcar Todos"
+                : "Selecionar Todos"}
             </Button>
           </div>
           <div className="grid grid-cols-3 gap-2">
@@ -187,7 +216,10 @@ export function TipDialog({ open, onOpenChange, people, totalAmount, onConfirm }
                   checked={participants.includes(person)}
                   onCheckedChange={() => handleParticipantToggle(person)}
                 />
-                <Label htmlFor={`tip-${person}`} className="cursor-pointer text-sm">
+                <Label
+                  htmlFor={`tip-${person}`}
+                  className="cursor-pointer text-sm"
+                >
                   {person}
                 </Label>
               </div>
@@ -199,17 +231,23 @@ export function TipDialog({ open, onOpenChange, people, totalAmount, onConfirm }
           <div className="bg-muted/50 p-3 rounded-lg">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Valor por pessoa:</span>
-              <span className="font-medium">{formatCurrency(tipValue / participants.length)}</span>
+              <span className="font-medium">
+                {formatCurrency(tipValue / participants.length)}
+              </span>
             </div>
           </div>
         )}
 
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
+        <DialogFooter className="flex mt-4 flex-col gap-4">
           <Button type="button" onClick={handleConfirm} disabled={!isValid}>
-            Adicionar Gorjeta
+            Adicionar
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancelar
           </Button>
         </DialogFooter>
       </DialogContent>
