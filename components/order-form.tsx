@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { PlusCircle, Receipt, ArrowLeft, Trash2 } from "lucide-react"
+import { PlusCircle, Receipt, ArrowLeft, Trash2, HandCoins } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { formatCurrency } from "@/lib/utils"
+import { TipDialog } from "@/components/tip-dialog"
 
 interface GroupData {
   id: string
@@ -32,6 +33,7 @@ interface OrderItem {
   quantity: number
   totalValue: number
   participants: string[]
+  isTip?: boolean
 }
 
 export function OrderForm() {
@@ -44,6 +46,7 @@ export function OrderForm() {
   const [participants, setParticipants] = useState<string[]>([])
   const [items, setItems] = useState<OrderItem[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [tipDialogOpen, setTipDialogOpen] = useState(false)
 
   useEffect(() => {
     // Load group data from localStorage
@@ -187,6 +190,32 @@ export function OrderForm() {
     }
   }
 
+  const handleAddTip = (tipValue: number, tipParticipants: string[]) => {
+    const tipItem: OrderItem = {
+      id: Date.now().toString(),
+      name: "Gorjeta do Garçom",
+      quantity: 1,
+      totalValue: tipValue,
+      participants: tipParticipants,
+      isTip: true,
+    }
+
+    const updatedItems = [...items, tipItem]
+    setItems(updatedItems)
+
+    // Update localStorage
+    if (groupData) {
+      const groupsJson = localStorage.getItem("groups")
+      if (groupsJson) {
+        const groups: GroupData[] = JSON.parse(groupsJson)
+        const updatedGroups = groups.map((g) =>
+          g.id === groupData.id ? { ...g, items: updatedItems } : g
+        )
+        localStorage.setItem("groups", JSON.stringify(updatedGroups))
+      }
+    }
+  }
+
   if (!groupData) {
     return <div className="text-center py-8">Carregando...</div>
   }
@@ -308,8 +337,28 @@ export function OrderForm() {
               Adicionar Item
             </Button>
           </form>
+
+          <Separator className="my-4" />
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => setTipDialogOpen(true)}
+          >
+            <HandCoins className="mr-2 h-4 w-4" />
+            Adicionar Gorjeta do Garçom
+          </Button>
         </CardContent>
       </Card>
+
+      <TipDialog
+        open={tipDialogOpen}
+        onOpenChange={setTipDialogOpen}
+        people={groupData.people}
+        totalAmount={totalAmount}
+        onConfirm={handleAddTip}
+      />
 
       {items.length > 0 && (
         <Card>
@@ -330,12 +379,21 @@ export function OrderForm() {
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                       className="space-y-2"
                     >
-                    <div className="flex justify-between items-start">
+                    <div className={`flex justify-between items-start ${item.isTip ? 'bg-amber-50 dark:bg-amber-950/20 p-3 rounded-lg -mx-3' : ''}`}>
                       <div>
-                        <h4 className="font-medium">{item.name}</h4>
+                        <h4 className={`font-medium ${item.isTip ? 'flex items-center gap-2' : ''}`}>
+                          {item.isTip && <HandCoins className="h-4 w-4 text-amber-600 dark:text-amber-400" />}
+                          {item.name}
+                        </h4>
                         <p className="text-sm text-muted-foreground">
-                          {item.quantity} × {formatCurrency(item.totalValue / item.quantity)} ={" "}
-                          {formatCurrency(item.totalValue)}
+                          {item.isTip ? (
+                            formatCurrency(item.totalValue)
+                          ) : (
+                            <>
+                              {item.quantity} × {formatCurrency(item.totalValue / item.quantity)} ={" "}
+                              {formatCurrency(item.totalValue)}
+                            </>
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground">Para: {item.participants.join(", ")}</p>
                       </div>
