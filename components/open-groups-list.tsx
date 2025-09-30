@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Edit, CheckCircle, Calendar, Users } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -92,8 +93,16 @@ export function OpenGroupsList() {
         <CardDescription>Continue editando ou finalize um grupo existente</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        {openGroups.map((group) => (
-          <Card key={group.id} className="border-2">
+        <AnimatePresence mode="popLayout">
+          {openGroups.map((group, index) => (
+            <motion.div
+              key={group.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
+              <Card className="border-2">
             <CardContent className="pt-4">
               <div className="space-y-3">
                 <div className="flex justify-between items-start">
@@ -137,7 +146,9 @@ export function OpenGroupsList() {
               </div>
             </CardContent>
           </Card>
-        ))}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </CardContent>
     </Card>
   )

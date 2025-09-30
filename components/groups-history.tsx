@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Calendar, Users, Eye, ChevronDown, ChevronUp } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -131,13 +132,21 @@ export function GroupsHistory() {
 
   return (
     <div className="space-y-4">
-      {finishedGroups.map((group) => {
-        const isExpanded = expandedGroups.has(group.id)
-        const personTotals = calculatePersonTotals(group)
-        const totalAmount = calculateGroupTotal(group)
+      <AnimatePresence mode="popLayout">
+        {finishedGroups.map((group, index) => {
+          const isExpanded = expandedGroups.has(group.id)
+          const personTotals = calculatePersonTotals(group)
+          const totalAmount = calculateGroupTotal(group)
 
-        return (
-          <Card key={group.id} className="border-2">
+          return (
+            <motion.div
+              key={group.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
+              <Card className="border-2">
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
@@ -167,9 +176,16 @@ export function GroupsHistory() {
                 {group.items.length} item(ns) · {group.people.join(", ")}
               </div>
 
-              {isExpanded && (
-                <div className="space-y-4 pt-2">
-                  <Separator />
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-4 pt-2"
+                  >
+                    <Separator />
 
                   <div>
                     <h4 className="font-semibold text-sm mb-2">Itens Consumidos</h4>
@@ -213,8 +229,9 @@ export function GroupsHistory() {
                       ))}
                     </div>
                   </div>
-                </div>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className="flex gap-2 pt-2">
                 <Button
@@ -242,8 +259,10 @@ export function GroupsHistory() {
               </div>
             </CardContent>
           </Card>
-        )
-      })}
+            </motion.div>
+          )
+        })}
+      </AnimatePresence>
     </div>
   )
 }

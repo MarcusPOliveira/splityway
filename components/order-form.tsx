@@ -5,6 +5,7 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { PlusCircle, Receipt, ArrowLeft, Trash2 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -232,28 +233,37 @@ export function OrderForm() {
               </div>
             </div>
 
-            {unitPrice && quantity && participants.length > 0 && (
-              <Card className="bg-muted/50">
-                <CardContent className="pt-4">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Valor total do item:</span>
-                      <span className="font-medium">{formatCurrency(Number.parseFloat(unitPrice) * quantity)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Valor por participante:</span>
-                      <span className="font-medium">
-                        {formatCurrency((Number.parseFloat(unitPrice) * quantity) / participants.length)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Participantes:</span>
-                      <span className="text-muted-foreground">{participants.length} pessoa(s)</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <AnimatePresence>
+              {unitPrice && quantity && participants.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Card className="bg-muted/50">
+                    <CardContent className="pt-4">
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Valor total do item:</span>
+                          <span className="font-medium">{formatCurrency(Number.parseFloat(unitPrice) * quantity)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Valor por participante:</span>
+                          <span className="font-medium">
+                            {formatCurrency((Number.parseFloat(unitPrice) * quantity) / participants.length)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Participantes:</span>
+                          <span className="text-muted-foreground">{participants.length} pessoa(s)</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <Button type="submit" className="w-full" disabled={!itemName || !unitPrice || participants.length === 0}>
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -272,8 +282,16 @@ export function OrderForm() {
           <CardContent>
             <ScrollArea className="h-[200px] pr-4">
               <div className="space-y-4">
-                {items.map((item) => (
-                  <div key={item.id} className="space-y-2">
+                <AnimatePresence mode="popLayout">
+                  {items.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                      className="space-y-2"
+                    >
                     <div className="flex justify-between items-start">
                       <div>
                         <h4 className="font-medium">{item.name}</h4>
@@ -288,8 +306,9 @@ export function OrderForm() {
                       </Button>
                     </div>
                     <Separator />
-                  </div>
-                ))}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             </ScrollArea>
           </CardContent>
