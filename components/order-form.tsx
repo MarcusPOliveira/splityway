@@ -38,7 +38,7 @@ export function OrderForm() {
   const router = useRouter()
   const [groupData, setGroupData] = useState<GroupData | null>(null)
   const [itemName, setItemName] = useState("")
-  const [quantity, setQuantity] = useState(1)
+  const [quantity, setQuantity] = useState<number | "">(1)
   const [unitPrice, setUnitPrice] = useState("")
   const [participants, setParticipants] = useState<string[]>([])
   const [items, setItems] = useState<OrderItem[]>([])
@@ -73,14 +73,14 @@ export function OrderForm() {
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!itemName || !unitPrice || participants.length === 0) return
+    if (!itemName || !unitPrice || !quantity || quantity === 0 || participants.length === 0) return
 
-    const totalValue = Number.parseFloat(unitPrice) * quantity
+    const totalValue = Number.parseFloat(unitPrice) * Number(quantity)
 
     const newItem: OrderItem = {
       id: Date.now().toString(),
       name: itemName,
-      quantity,
+      quantity: Number(quantity),
       totalValue,
       participants: [...participants],
     }
@@ -191,7 +191,10 @@ export function OrderForm() {
                   type="number"
                   min="1"
                   value={quantity}
-                  onChange={(e) => setQuantity(Number.parseInt(e.target.value) || 1)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setQuantity(value === "" ? "" : Number.parseInt(value))
+                  }}
                   required
                 />
               </div>
@@ -234,7 +237,7 @@ export function OrderForm() {
             </div>
 
             <AnimatePresence>
-              {unitPrice && quantity && participants.length > 0 && (
+              {unitPrice && quantity && quantity !== 0 && participants.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -246,12 +249,12 @@ export function OrderForm() {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Valor total do item:</span>
-                          <span className="font-medium">{formatCurrency(Number.parseFloat(unitPrice) * quantity)}</span>
+                          <span className="font-medium">{formatCurrency(Number.parseFloat(unitPrice) * Number(quantity))}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Valor por participante:</span>
                           <span className="font-medium">
-                            {formatCurrency((Number.parseFloat(unitPrice) * quantity) / participants.length)}
+                            {formatCurrency((Number.parseFloat(unitPrice) * Number(quantity)) / participants.length)}
                           </span>
                         </div>
                         <div className="flex justify-between text-xs">
@@ -265,7 +268,7 @@ export function OrderForm() {
               )}
             </AnimatePresence>
 
-            <Button type="submit" className="w-full" disabled={!itemName || !unitPrice || participants.length === 0}>
+            <Button type="submit" className="w-full" disabled={!itemName || !unitPrice || !quantity || quantity === 0 || participants.length === 0}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Adicionar Item
             </Button>
