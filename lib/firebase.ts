@@ -16,7 +16,7 @@ const app =
 
 let analytics: Analytics | null = null
 
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && process.env.NODE_ENV === "production") {
   analytics = getAnalytics(app)
 }
 

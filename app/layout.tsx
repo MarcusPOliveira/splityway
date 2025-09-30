@@ -55,7 +55,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AnalyticsProvider>{children}</AnalyticsProvider>
-          <Analytics />
+          {process.env.NODE_ENV === "production" && <Analytics />}
         </ThemeProvider>
       </body>
     </html>
